@@ -1,8 +1,9 @@
-package Interfaces
+package interfaces
 
 import TodoItem
+import TodoList
 
-interface TodoListRepoInterface {
-    fun getTodos(): MutableList<TodoItem>
-    fun updateTodos(updatedTodoList: MutableList<TodoItem>): String
+interface TodoListRepo {
+    fun getTodos(): TodoList
+    fun updateTodos(updatedTodoList: TodoList)
 }
