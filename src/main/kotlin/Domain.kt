@@ -1,19 +1,20 @@
-import Interfaces.TodoListRepoInterface
+import interfaces.TodoListRepo
 import java.time.LocalDateTime
 import java.util.*
 
-class Domain(val todoListRepo: TodoListRepoInterface) {
-    fun getTodoList(todoId: String = ""): MutableList<TodoItem>  {
-        val todoList: MutableList<TodoItem> = todoListRepo.getTodos()
+class Domain(val todoListRepo: TodoListRepo) {
+    fun getTodoList(todoId: String = ""): TodoList  {
+        val todoList: TodoList = todoListRepo.getTodos()
         if (todoId == "") {
             return todoList
         } else {
             return todoList.filter {
-            it.id == todoId }.toMutableList()
+                it.id == todoId
+            }
         }
     }
 
-    val todoList: MutableList<TodoItem> = getTodoList("")
+    val todoList: TodoList = getTodoList("")
 
     private fun createNewTodo(todoName: String): TodoItem {
         val newTodoName: String = todoName
@@ -32,7 +33,7 @@ class Domain(val todoListRepo: TodoListRepoInterface) {
     }
 
     fun updateTodoName(todoId: String, updatedTodoName: String): String {
-        for (todoItem in todoList) {
+        for (todoItem in todoList.items) {
             if (todoItem.id == todoId) {
                 todoItem.name = updatedTodoName
                 todoItem.lastModifiedDate = LocalDateTime.now().toString()
@@ -44,7 +45,7 @@ class Domain(val todoListRepo: TodoListRepoInterface) {
 
     fun updateTodoStatus(todoId: String, updatedTodoStatus: String): String {
         var nameOfUpdatedTodo: String? = null
-        for (todoItem in todoList) {
+        for (todoItem in todoList.items) {
             if (todoItem.id == todoId) {
                 todoItem.status = updatedTodoStatus
                 todoItem.lastModifiedDate = LocalDateTime.now().toString()
@@ -57,9 +58,9 @@ class Domain(val todoListRepo: TodoListRepoInterface) {
 
     fun deleteTodo(todoId: String): String {
         var nameOfRemovedTodo: String? = null
-        for (todoItem in todoList) {
+        for (todoItem in todoList.items) {
             if (todoItem.id == todoId) {
-                todoList.remove(todoItem)
+                todoList.items.remove(todoItem)
                 nameOfRemovedTodo = todoItem.name
             }
         }
@@ -78,9 +79,17 @@ data class TodoItem(
     var status: String = "NOT_DONE"
 )
 
-//data class TodoList(
-//    val items: MutableList<TodoItem> = mutableListOf()
-//)
+data class TodoList (
+    val items: MutableList<TodoItem> = mutableListOf()
+) {
+    fun filter(predicate: (TodoItem) -> Boolean): TodoList {
+        val filteredTodos: MutableList<TodoItem> = items.filter(predicate).toMutableList()
+        return TodoList(filteredTodos)
+    }
+    fun add(todoItem: TodoItem) {
+        items.add(todoItem)
+    }
+}
 
 fun main() {
     val repo = TodoListRepoJSON()

@@ -1,4 +1,4 @@
-import Interfaces.TodoListRepoInterface
+import interfaces.TodoListRepo
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Method.PUT
@@ -19,7 +19,7 @@ class HttpApi(domain: Domain) {
 
     val app: HttpHandler = routes(
         "/todos" bind GET to {request: Request ->
-            val todoList: MutableList<TodoItem> = domain.getTodoList()
+            val todoList: MutableList<TodoItem> = domain.getTodoList().items
             val toDoListAsJsonString: String = mapper.writeValueAsString(todoList) // turn back to a json string
             Response(OK).body(toDoListAsJsonString)
         },
@@ -54,7 +54,7 @@ class HttpApi(domain: Domain) {
 
         "/todos/{todoId}" bind GET to {request: Request ->
             val todoId: String = request.path("todoId")!! // handle errors if id is incorrect
-            val todoList: MutableList<TodoItem> = domain.getTodoList(todoId)
+            val todoList: TodoList = domain.getTodoList(todoId)
             val toDoListAsJsonString: String = mapper.writeValueAsString(todoList) // turn back to a json string
             Response(OK).body(toDoListAsJsonString)
         },
@@ -70,7 +70,7 @@ class HttpApi(domain: Domain) {
 }
 
 fun main() {
-    val todoListRepo: TodoListRepoInterface = TodoListRepoJSON()
+    val todoListRepo: TodoListRepo = TodoListRepoJSON()
     val domain = Domain(todoListRepo)
 
     val printingApp: HttpHandler = PrintRequest().then(HttpApi(domain).app)
